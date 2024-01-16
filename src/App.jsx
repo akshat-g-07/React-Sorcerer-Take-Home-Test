@@ -12,6 +12,9 @@ function App() {
     RED_TEXT: {
       color: "red",
     },
+    UNDERLINE: {
+      textDecoration: "underline",
+    },
   };
 
   const handleBeforeInput = (chars, editorState) => {
@@ -107,6 +110,38 @@ function App() {
       setEditorState(finalEditorState);
       return true;
     }
+
+    if (
+      selection.getStartOffset() === 3 &&
+      chars === " " &&
+      currentBlock.getText()[0] === "*" &&
+      currentBlock.getText()[1] === "*" &&
+      currentBlock.getText()[2] === "*"
+    ) {
+      const newContentState = Modifier.replaceText(
+        contentState,
+        selection.merge({
+          anchorOffset: 0,
+          focusOffset: 3,
+        }),
+        "",
+        editorState.getCurrentInlineStyle()
+      );
+
+      const newEditorState = EditorState.push(
+        editorState,
+        newContentState,
+        "remove-range"
+      );
+
+      const finalEditorState = RichUtils.toggleInlineStyle(
+        newEditorState,
+        "UNDERLINE"
+      );
+
+      setEditorState(finalEditorState);
+      return true;
+    }
   };
 
   const handleKeyCommand = (command, editorState) => {
@@ -177,6 +212,30 @@ function App() {
       const finalEditorState = RichUtils.toggleInlineStyle(
         splitEditorState,
         "RED_TEXT"
+      );
+
+      setEditorState(finalEditorState);
+      return "handled";
+    }
+
+    if (
+      command === "split-block" &&
+      editorState.getCurrentInlineStyle().has("UNDERLINE")
+    ) {
+      const contentState = editorState.getCurrentContent();
+      const selectionState = editorState.getSelection();
+      const splitContentState = Modifier.splitBlock(
+        contentState,
+        selectionState
+      );
+      const splitEditorState = EditorState.push(
+        editorState,
+        splitContentState,
+        "split-block"
+      );
+      const finalEditorState = RichUtils.toggleInlineStyle(
+        splitEditorState,
+        "UNDERLINE"
       );
 
       setEditorState(finalEditorState);
