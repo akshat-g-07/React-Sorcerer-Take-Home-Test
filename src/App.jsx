@@ -40,6 +40,36 @@ function App() {
       setEditorState(updatedEditorState);
       return true;
     }
+
+    if (
+      selection.getStartOffset() === 1 &&
+      chars === " " &&
+      currentBlock.getText()[0] === "*"
+    ) {
+      const newContentState = Modifier.replaceText(
+        contentState,
+        selection.merge({
+          anchorOffset: 0,
+          focusOffset: 1,
+        }),
+        "",
+        editorState.getCurrentInlineStyle()
+      );
+
+      const newEditorState = EditorState.push(
+        editorState,
+        newContentState,
+        "remove-range"
+      );
+
+      const finalEditorState = RichUtils.toggleInlineStyle(
+        newEditorState,
+        "BOLD"
+      );
+
+      setEditorState(finalEditorState);
+      return true;
+    }
   };
 
   const handleKeyCommand = (command, editorState) => {
@@ -62,6 +92,30 @@ function App() {
       const finalEditorState = RichUtils.toggleBlockType(
         splitEditorState,
         "unstyled"
+      );
+
+      setEditorState(finalEditorState);
+      return "handled";
+    }
+
+    if (
+      command === "split-block" &&
+      editorState.getCurrentInlineStyle().has("BOLD")
+    ) {
+      const contentState = editorState.getCurrentContent();
+      const selectionState = editorState.getSelection();
+      const splitContentState = Modifier.splitBlock(
+        contentState,
+        selectionState
+      );
+      const splitEditorState = EditorState.push(
+        editorState,
+        splitContentState,
+        "split-block"
+      );
+      const finalEditorState = RichUtils.toggleInlineStyle(
+        splitEditorState,
+        "BOLD"
       );
 
       setEditorState(finalEditorState);
