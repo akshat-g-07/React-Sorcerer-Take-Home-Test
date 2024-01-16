@@ -71,10 +71,24 @@ function App() {
         "remove-range"
       );
 
-      const finalEditorState = RichUtils.toggleInlineStyle(
+      let finalEditorState = RichUtils.toggleInlineStyle(
         newEditorState,
         "BOLD"
       );
+
+      if (finalEditorState.getCurrentInlineStyle().has("RED_TEXT")) {
+        finalEditorState = RichUtils.toggleInlineStyle(
+          finalEditorState,
+          "RED_TEXT"
+        );
+      }
+
+      if (finalEditorState.getCurrentInlineStyle().has("UNDERLINE")) {
+        finalEditorState = RichUtils.toggleInlineStyle(
+          finalEditorState,
+          "UNDERLINE"
+        );
+      }
 
       setEditorState(finalEditorState);
       return true;
@@ -102,10 +116,24 @@ function App() {
         "remove-range"
       );
 
-      const finalEditorState = RichUtils.toggleInlineStyle(
+      let finalEditorState = RichUtils.toggleInlineStyle(
         newEditorState,
         "RED_TEXT"
       );
+
+      if (finalEditorState.getCurrentInlineStyle().has("BOLD")) {
+        finalEditorState = RichUtils.toggleInlineStyle(
+          finalEditorState,
+          "BOLD"
+        );
+      }
+
+      if (finalEditorState.getCurrentInlineStyle().has("UNDERLINE")) {
+        finalEditorState = RichUtils.toggleInlineStyle(
+          finalEditorState,
+          "UNDERLINE"
+        );
+      }
 
       setEditorState(finalEditorState);
       return true;
@@ -134,10 +162,24 @@ function App() {
         "remove-range"
       );
 
-      const finalEditorState = RichUtils.toggleInlineStyle(
+      let finalEditorState = RichUtils.toggleInlineStyle(
         newEditorState,
         "UNDERLINE"
       );
+
+      if (finalEditorState.getCurrentInlineStyle().has("RED_TEXT")) {
+        finalEditorState = RichUtils.toggleInlineStyle(
+          finalEditorState,
+          "RED_TEXT"
+        );
+      }
+
+      if (finalEditorState.getCurrentInlineStyle().has("BOLD")) {
+        finalEditorState = RichUtils.toggleInlineStyle(
+          finalEditorState,
+          "BOLD"
+        );
+      }
 
       setEditorState(finalEditorState);
       return true;
