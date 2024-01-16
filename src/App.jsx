@@ -1,3 +1,4 @@
+import KeyboardReturnIcon from "@mui/icons-material/KeyboardReturn";
 import "./App.css";
 import { useState } from "react";
 import {
@@ -9,6 +10,8 @@ import {
   convertToRaw,
 } from "draft-js";
 import "../node_modules/draft-js/dist/Draft.css";
+import Footer from "./components/Footer";
+import { Button } from "@mui/material";
 
 function App() {
   const [editorState, setEditorState] = useState(() => {
@@ -323,10 +326,6 @@ function App() {
     return "not-handled";
   };
 
-  const handleReturn = (e, editorState) => {
-    // console.log(e);
-  };
-
   const handleSave = () => {
     const contentState = editorState.getCurrentContent();
     const content = convertToRaw(contentState);
@@ -337,17 +336,52 @@ function App() {
 
   return (
     <>
-      <div className="bg-blue-500 h-screen w-screen">
-        <button onClick={handleSave}>Save</button>
-        <Editor
-          editorState={editorState}
-          onChange={setEditorState}
-          handleBeforeInput={handleBeforeInput}
-          handleReturn={handleReturn}
-          handleKeyCommand={handleKeyCommand}
-          customStyleMap={inlineStyleMap}
-        />
-      </div>
+      <main className="bg-slate-300 h-screen w-screen flex flex-col items-center">
+        <div className="flex items-end justify-around mb-4">
+          <div>
+            <p className="font-bold text-xl w-full text-center">Demo Editor</p>
+            <div className="flex items-center">
+              <p className="border-2 border-black border-solid rounded-full h-2 w-2 mr-2" />
+              Start with `# ` to put content in Heading
+            </div>
+            <div className="flex items-center">
+              <p className="border-2 border-black border-solid rounded-full h-2 w-2 mr-2" />
+              Start with `* ` to put content in Bold
+            </div>
+            <div className="flex items-center">
+              <p className="border-2 border-black border-solid rounded-full h-2 w-2 mr-2" />
+              Start with `** ` to put content in Red Color
+            </div>
+            <div className="flex items-center">
+              <p className="border-2 border-black border-solid rounded-full h-2 w-2 mr-2" />
+              Start with `*** ` to put content in Underline
+            </div>
+            <div className="flex items-center">
+              <p className="border-2 border-black border-solid rounded-full h-2 w-2 mr-2" />
+              Press <KeyboardReturnIcon sx={{ transform: "scaleX(-1)" }} />{" "}
+              Enter to go to new line, subsequently new line has no style
+              initially
+            </div>
+            <div className="flex items-center">
+              <p className="border-2 border-black border-solid rounded-full h-2 w-2 mr-2" />
+              Press `Save` Button to save your data
+            </div>
+          </div>
+          <Button variant="contained" onClick={handleSave}>
+            Save
+          </Button>
+        </div>
+        <div className="bg-white h-2/5 w-7/12 border-2 border-black border-solid">
+          <Editor
+            editorState={editorState}
+            onChange={setEditorState}
+            handleBeforeInput={handleBeforeInput}
+            handleKeyCommand={handleKeyCommand}
+            customStyleMap={inlineStyleMap}
+          />
+        </div>
+      </main>
+      <Footer />
     </>
   );
 }
