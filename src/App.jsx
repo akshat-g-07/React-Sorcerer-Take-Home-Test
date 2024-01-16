@@ -1,12 +1,26 @@
 import "./App.css";
 import { useState } from "react";
-import { Editor, EditorState, RichUtils, Modifier } from "draft-js";
+import {
+  Editor,
+  EditorState,
+  RichUtils,
+  Modifier,
+  convertFromRaw,
+  convertToRaw,
+} from "draft-js";
 import "../node_modules/draft-js/dist/Draft.css";
 
 function App() {
-  const [editorState, setEditorState] = useState(() =>
-    EditorState.createEmpty()
-  );
+  const [editorState, setEditorState] = useState(() => {
+    const savedContent = localStorage.getItem("editorContent");
+    if (savedContent) {
+      const state = JSON.parse(savedContent);
+      const contentState = convertFromRaw(state);
+      return EditorState.createWithContent(contentState);
+    } else {
+      return EditorState.createEmpty();
+    }
+  });
 
   const inlineStyleMap = {
     RED_TEXT: {
@@ -33,20 +47,43 @@ function App() {
           anchorOffset: 0,
           focusOffset: 1,
         }),
-        ""
+        "",
+        editorState.getCurrentInlineStyle()
       );
 
-      const newEditorState = EditorState.set(editorState, {
-        currentContent: newContentState,
-      });
-      const finalEditorState = RichUtils.toggleBlockType(
+      const newEditorState = EditorState.push(
+        editorState,
+        newContentState,
+        "remove-range"
+      );
+
+      let finalEditorState = RichUtils.toggleBlockType(
         newEditorState,
         "header-one"
       );
 
-      const updatedEditorState = EditorState.moveFocusToEnd(finalEditorState);
+      if (finalEditorState.getCurrentInlineStyle().has("RED_TEXT")) {
+        finalEditorState = RichUtils.toggleInlineStyle(
+          finalEditorState,
+          "RED_TEXT"
+        );
+      }
 
-      setEditorState(updatedEditorState);
+      if (finalEditorState.getCurrentInlineStyle().has("UNDERLINE")) {
+        finalEditorState = RichUtils.toggleInlineStyle(
+          finalEditorState,
+          "UNDERLINE"
+        );
+      }
+
+      if (finalEditorState.getCurrentInlineStyle().has("BOLD")) {
+        finalEditorState = RichUtils.toggleInlineStyle(
+          finalEditorState,
+          "BOLD"
+        );
+      }
+
+      setEditorState(finalEditorState);
       return true;
     }
 
@@ -290,9 +327,18 @@ function App() {
     // console.log(e);
   };
 
+  const handleSave = () => {
+    const contentState = editorState.getCurrentContent();
+    const content = convertToRaw(contentState);
+    const stringed = JSON.stringify(content);
+    localStorage.setItem("editorContent", stringed);
+    alert("Content saved!");
+  };
+
   return (
     <>
       <div className="bg-blue-500 h-screen w-screen">
+        <button onClick={handleSave}>Save</button>
         <Editor
           editorState={editorState}
           onChange={setEditorState}
