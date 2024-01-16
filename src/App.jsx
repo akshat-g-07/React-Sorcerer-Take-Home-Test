@@ -8,6 +8,12 @@ function App() {
     EditorState.createEmpty()
   );
 
+  const inlineStyleMap = {
+    RED_TEXT: {
+      color: "red",
+    },
+  };
+
   const handleBeforeInput = (chars, editorState) => {
     const selection = editorState.getSelection();
     const contentState = editorState.getCurrentContent();
@@ -70,6 +76,37 @@ function App() {
       setEditorState(finalEditorState);
       return true;
     }
+
+    if (
+      selection.getStartOffset() === 2 &&
+      chars === " " &&
+      currentBlock.getText()[0] === "*" &&
+      currentBlock.getText()[1] === "*"
+    ) {
+      const newContentState = Modifier.replaceText(
+        contentState,
+        selection.merge({
+          anchorOffset: 0,
+          focusOffset: 2,
+        }),
+        "",
+        editorState.getCurrentInlineStyle()
+      );
+
+      const newEditorState = EditorState.push(
+        editorState,
+        newContentState,
+        "remove-range"
+      );
+
+      const finalEditorState = RichUtils.toggleInlineStyle(
+        newEditorState,
+        "RED_TEXT"
+      );
+
+      setEditorState(finalEditorState);
+      return true;
+    }
   };
 
   const handleKeyCommand = (command, editorState) => {
@@ -121,6 +158,30 @@ function App() {
       setEditorState(finalEditorState);
       return "handled";
     }
+
+    if (
+      command === "split-block" &&
+      editorState.getCurrentInlineStyle().has("RED_TEXT")
+    ) {
+      const contentState = editorState.getCurrentContent();
+      const selectionState = editorState.getSelection();
+      const splitContentState = Modifier.splitBlock(
+        contentState,
+        selectionState
+      );
+      const splitEditorState = EditorState.push(
+        editorState,
+        splitContentState,
+        "split-block"
+      );
+      const finalEditorState = RichUtils.toggleInlineStyle(
+        splitEditorState,
+        "RED_TEXT"
+      );
+
+      setEditorState(finalEditorState);
+      return "handled";
+    }
     return "not-handled";
   };
 
@@ -130,13 +191,14 @@ function App() {
 
   return (
     <>
-      <div className="bg-red-500 h-screen w-screen">
+      <div className="bg-blue-500 h-screen w-screen">
         <Editor
           editorState={editorState}
           onChange={setEditorState}
           handleBeforeInput={handleBeforeInput}
           handleReturn={handleReturn}
           handleKeyCommand={handleKeyCommand}
+          customStyleMap={inlineStyleMap}
         />
       </div>
     </>
